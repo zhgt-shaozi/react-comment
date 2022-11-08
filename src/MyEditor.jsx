@@ -11,7 +11,7 @@ export default function MyEditor(props) {
   const reactQuillRef = useRef(null);
 
   const [editor, setEditor] = useState(null);
-  const [value, setValue] = useState("<p>hello</p>");
+  const [value, setValue] = useState("");
   const [linkVisible, setLinkVisible] = useState(false);
 
   // 及时销毁 editor ，重要！
