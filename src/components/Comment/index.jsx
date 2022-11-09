@@ -1,7 +1,6 @@
 import React, { useRef, useMemo, useState } from "react";
 import { Button, Avatar, Space } from "antd";
-import MyEditor from "./MyEditor";
-import "./styles.scss";
+import MyEditor from "../MyEditor";
 
 export default function Comment() {
   const reactQuillRef = useRef(null);
@@ -17,7 +16,6 @@ export default function Comment() {
       />
       <Space direction="vertical">
         <MyEditor />
-        <Button type="primary">回复</Button>
       </Space>
     </Space>
   );

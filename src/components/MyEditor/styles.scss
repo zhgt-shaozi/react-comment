@@ -1,0 +1,15 @@
+.editor-box {
+  border: 1px solid #ccc;
+  z-index: 100;
+  border-radius: 6px;
+
+  .editor-toolbar {
+    padding: 2px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .editor {
+    padding: 2px;
+    min-height: 188px;
+  }
+}

@@ -1,5 +1,5 @@
 import React, { useRef, useMemo, useState } from "react";
-import Comment from "./Comment";
+import Comment from "./components/Comment";
 import "./styles.scss";
 
 export default function App() {
