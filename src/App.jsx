@@ -1,14 +1,17 @@
-import React, { useRef, useMemo, useState } from "react";
+import React from "react";
+// import { Comment, Avatar } from "antd";
 import Comment from "./components/Comment";
+import CommentList from "./components/CommentList";
 import "./styles.scss";
 
 export default function App() {
   return (
     <div className="app">
-      <Comment />
-      {/* <Avatar src="https://joeschmoe.io/api/v1/random" /> */}
+      {/* 评论列表 */}
+      <CommentList />
 
-      {/* <MyReactQuill /> */}
+      {/* 评论 */}
+      <Comment />
     </div>
   );
 }

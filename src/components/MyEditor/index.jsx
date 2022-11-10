@@ -1,18 +1,21 @@
-import React, { useRef, useEffect, useState } from "react";
-import { Button, Avatar, Space } from "antd";
-import { DomEditor, IEditorConfig } from "@wangeditor/editor";
+import React, { useEffect, useState } from "react";
+import { Button, Space } from "antd";
+import { DomEditor, Boot } from "@wangeditor/editor";
+import mentionModule from "@wangeditor/plugin-mention";
 import { Editor, Toolbar } from "@wangeditor/editor-for-react";
 import "@wangeditor/editor/dist/css/style.css";
+import MentionModal from "./MentionModal";
 import "./styles.scss";
+
+// 注册插件、拓展菜单。要在创建编辑器之前注册，且只能注册一次，不可重复注册。
+Boot.registerModule(mentionModule);
 
 export default function MyEditor(props) {
   const { style } = props;
 
-  const reactQuillRef = useRef(null);
-
   const [editor, setEditor] = useState(null);
   const [value, setValue] = useState("");
-  const [linkVisible, setLinkVisible] = useState(false);
+  const [mentionModalVisible, setMentionModalVisible] = useState(false);
 
   // 及时销毁 editor ，重要！
   useEffect(() => {
@@ -27,7 +30,7 @@ export default function MyEditor(props) {
     };
   }, [editor]);
 
-  // 工具栏配置
+  // TODO 工具栏配置
   const toolbarConfig = {
     // 想要排除的配置项
     excludeKeys: [
@@ -56,7 +59,7 @@ export default function MyEditor(props) {
     }
   };
 
-  // 编辑器配置
+  // TODO 编辑器配置
   const editorConfig = {
     placeholder: "请输入内容",
     readOnly: false, // 是否只读
@@ -71,6 +74,31 @@ export default function MyEditor(props) {
       // fontFamily: { fontFamilyList: ["黑体", "楷体"] }, // 字体
       // lineHeight: { lineHeightList: ["1", "1.5"] }, // 行高
       // emotion: { emotions: ["😄"] }, // 表情
+    },
+    // 添加第三方插件
+    EXTEND_CONF: {
+      // 提及@ 功能
+      mentionConfig: {
+        showModal: () => setMentionModalVisible(true),
+        hideModal: () => setMentionModalVisible(false)
+      }
+    }
+  };
+
+  // 将选中的提及项展示在 editor 中
+  const insertMention = ({ name, value }) => {
+    const mentionNode = {
+      type: "mention", // 必须是 'mention'
+      value: name, // 展示上去的内容，只能是字符串，会以 data-value 的形式展示在 DOM 上
+      info: { value }, // 自定义额外信息，会以 data-info 的形式展示在 DOM 上，但实质上是一个编码的对象形式，需要使用 decodeURIComponent 对其转义，得到正确的对象形式，便于后端拿到
+      children: [{ text: "" }] // 必须有一个空 text 作为 children
+    };
+
+    if (editor) {
+      editor.restoreSelection(); // 恢复选区
+      editor.deleteBackward("character"); // 删除 '@'
+      editor.insertNode(mentionNode); // 插入 mention
+      editor.move(1); // 移动光标
     }
   };
 
@@ -81,6 +109,7 @@ export default function MyEditor(props) {
   const handleReply = () => {
     if (!editor) return;
     console.log("editor: ", editor);
+    console.log("value: ", value);
   };
 
   return (
@@ -102,6 +131,12 @@ export default function MyEditor(props) {
           mode="default"
           className="editor"
           style={style}
+        />
+        {/* 提及组件 */}
+        <MentionModal
+          visible={mentionModalVisible}
+          onCancel={() => setMentionModalVisible(false)}
+          insertMention={insertMention}
         />
       </div>
 

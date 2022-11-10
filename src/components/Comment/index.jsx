@@ -10,10 +10,7 @@ export default function Comment() {
 
   return (
     <Space align="start">
-      <Avatar
-        style={{ marginTop: 5 }}
-        src="https://joeschmoe.io/api/v1/random"
-      />
+      <Avatar style={{ marginTop: 5 }} src="https://joeschmoe.io/api/v1/random" />
       <Space direction="vertical">
         <MyEditor />
       </Space>
