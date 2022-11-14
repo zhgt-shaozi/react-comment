@@ -1,0 +1,13 @@
+.emoji-post {
+  padding: 4px 8px;
+  height: 24px;
+  border-radius: 4px;
+  background-color: #daf6ea;
+  display: flex;
+  align-items: center;
+  // cursor: pointer;
+
+  > img {
+    margin-right: 4px;
+  }
+}

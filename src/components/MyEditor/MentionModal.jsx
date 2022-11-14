@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { Input, Space, Avatar, Empty, Spin } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import { isEmpty } from "lodash";
+import { isEmpty, debounce } from "lodash";
 import "./styles.scss";
 
 const dataSource = [
@@ -15,11 +15,17 @@ const dataSource = [
   { name: "嘘，", value: "xu", email: "xu@gmail.com" }
 ];
 
-// 模拟异步请求
-const fetch = () => {
+// API 模拟异步请求
+const fetch = (params) => {
+  console.log("params: ", params);
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve({ code: 200, success: true, data: dataSource });
+      const { keyword } = params;
+      resolve({
+        code: 200,
+        success: true,
+        data: !keyword ? dataSource : dataSource.filter((item) => item.value.includes(keyword))
+      });
     }, 500);
   });
 };
@@ -38,44 +44,52 @@ export default function MentionModal(props) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!visible) return;
+    if (!visible || !mentionRefs) {
+      setUserInfo([]);
+      return;
+    }
 
-    // 获取光标位置
-    const domSelection = document.getSelection(); // 表示用户选择的文本范围或光标的当前位置
+    // 重点 获取光标位置
+    const modalDom = mentionRefs.current;
+
+    const domSelection = document.getSelection(); // 表示用户的光标开始位置到结束位置的选区
     const domRange = domSelection.getRangeAt(0); // 返回一个包含当前选区内容的区域对象
     if (domRange === null) return;
 
     const selectionRect = domRange.getBoundingClientRect(); // 返回一个 DOMRect 对象，其提供了元素的大小及其相对于视口的位置
-    // console.log("selectionRect: ", selectionRect);
+    console.log("selectionRect: ", selectionRect);
 
     // 定位 modal 的位置
     setTop(selectionRect.top + 20);
     setLeft(selectionRect.left + 5);
+
+    // 重点 让 modal 的 opacity = 1，解决位置闪烁的问题
+    modalDom.style.opacity = 1;
 
     // 让 input 聚焦
     inputRefs && inputRefs.current.focus();
 
     // 调用请求
     fetchUserInfo();
-  }, [visible]);
+  }, [visible, mentionRefs]);
 
+  // 获取用户列表
   const fetchUserInfo = async (params) => {
     setLoading(true);
 
-    const { success, data } = await fetch();
+    const { success, data } = await fetch(params || { keyword: "" });
     if (success) {
       setLoading(false);
       setUserInfo(data);
     }
   };
 
-  // TODO 创建一个全局的 点击事件，点击除自身外的任意地方，使 input 失焦
+  // 重点 创建一个全局的 点击事件，点击除自身外的任意地方，使 input 失焦
   const handleClick = useCallback(
     (event) => {
       // 🍋 node.contains(otherNode) 来验证 node 节点中是否包含 otherNode 节点，返回 boolean; 可以用来判断当前元素是否为本身
       // 🍋 classList.contains(class) 来验证 classList 类列表中是否包含 class 类，返回 boolean
       if (visible && mentionRefs.current && !mentionRefs.current.contains(event.target)) {
-        setUserInfo([]);
         dom && dom.removeAttribute("style");
         onCancel && onCancel();
       }
@@ -91,7 +105,7 @@ export default function MentionModal(props) {
     };
   }, [handleClick]);
 
-  // 鼠标移入事件
+  // 重点 鼠标移入事件
   const handleMouseMove = (item) => {
     if (!userListRefs?.current) return;
 
@@ -110,7 +124,19 @@ export default function MentionModal(props) {
   // 点击 li
   const handleClickItem = (item) => {
     insertMention && insertMention(item);
+    onCancel && onCancel();
   };
+
+  // input 输入
+  const handleChangeInput = (e) => {
+    const { value: inputValue } = e.target;
+    fetchDebounce(inputValue);
+  };
+
+  // 添加防抖
+  const fetchDebounce = debounce(async (keyword) => {
+    fetchUserInfo({ keyword });
+  }, 600);
 
   return visible ? (
     <div ref={mentionRefs} id="mention-modal" className="mention-modal" style={{ top, left }}>
@@ -120,6 +146,7 @@ export default function MentionModal(props) {
           prefix={<SearchOutlined style={{ fontSize: 12, color: "#6b7785" }} />}
           placeholder="试试在此输入姓名搜索更多人"
           bordered={false}
+          onChange={handleChangeInput}
         />
       </div>
 

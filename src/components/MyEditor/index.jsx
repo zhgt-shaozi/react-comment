@@ -4,20 +4,29 @@ import { DomEditor, Boot } from "@wangeditor/editor";
 import mentionModule from "@wangeditor/plugin-mention";
 import { Editor, Toolbar } from "@wangeditor/editor-for-react";
 import "@wangeditor/editor/dist/css/style.css";
-import MentionModal from "./MentionModal";
+import MentionModal from "./MentionModal"; // 提及弹窗组件
 import "./styles.scss";
 
-// 注册插件、拓展菜单。要在创建编辑器之前注册，且只能注册一次，不可重复注册。
+// 重点 注册插件、拓展菜单。要在创建编辑器之前注册，且只能注册一次，不可重复注册。
 Boot.registerModule(mentionModule);
 
 export default function MyEditor(props) {
-  const { style } = props;
+  const {
+    defaultValue, // 默认值
+    editorStyle, // 编辑器的 style
+    onReply, // 回复（默认为 异步 方式）
+    showCancelBtn = true, // 是否显示取消按钮
+    onCancel, // 取消
+    onReplyText = "回复", // 回复按钮文字
+    unAsync = false // 是否取消异步方式（取消后，回复按钮则不采用异步方式）
+  } = props;
 
   const [editor, setEditor] = useState(null);
   const [value, setValue] = useState("");
   const [mentionModalVisible, setMentionModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // 及时销毁 editor ，重要！
+  // 重点 及时销毁 editor ，重要！
   useEffect(() => {
     const toolbar = DomEditor.getToolbar(editor);
     // const curToolbarConfig = toolbar.getConfig();
@@ -29,6 +38,11 @@ export default function MyEditor(props) {
       setEditor(null);
     };
   }, [editor]);
+
+  useEffect(() => {
+    if (!defaultValue) return;
+    setValue(defaultValue);
+  }, [defaultValue]);
 
   // TODO 工具栏配置
   const toolbarConfig = {
@@ -85,7 +99,7 @@ export default function MyEditor(props) {
     }
   };
 
-  // 将选中的提及项展示在 editor 中
+  // 重点 将选中的提及项展示在 editor 中
   const insertMention = ({ name, value }) => {
     const mentionNode = {
       type: "mention", // 必须是 'mention'
@@ -106,10 +120,28 @@ export default function MyEditor(props) {
     setValue(editor.getHtml());
   };
 
+  // 回复
   const handleReply = () => {
     if (!editor) return;
-    console.log("editor: ", editor);
     console.log("value: ", value);
+
+    if (unAsync) {
+      onReply && onReply({ value });
+      return;
+    }
+
+    // 重点 封装一个异步方法，供父组件使用，达到在子组件内操作状态的目的
+    setLoading(true);
+
+    return new Promise((resolve) => {
+      onReply && resolve(onReply({ value }));
+    })
+      .then((res) => {
+        setValue(""); // 回复事件请求成功，将 value 置为空
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -130,7 +162,7 @@ export default function MyEditor(props) {
           onChange={handleChange}
           mode="default"
           className="editor"
-          style={style}
+          style={editorStyle}
         />
         {/* 提及组件 */}
         <MentionModal
@@ -141,10 +173,14 @@ export default function MyEditor(props) {
       </div>
 
       <Space>
-        <Button type="primary" onClick={handleReply}>
-          回复
+        <Button disabled={editor && editor.isEmpty()} type="primary" loading={loading} onClick={handleReply}>
+          {onReplyText}
         </Button>
-        <Button type="text">取消</Button>
+        {showCancelBtn && (
+          <Button type="text" onClick={() => onCancel && onCancel()}>
+            取消
+          </Button>
+        )}
       </Space>
     </Space>
   );
