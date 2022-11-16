@@ -1,0 +1,39 @@
+.comment-item {
+  border-top: 1px solid #f4f5f5;
+  padding: 20px 0;
+
+  &:first-of-type {
+    border-top: none;
+  }
+
+  .ant-comment-inner {
+    padding: 8px;
+  }
+
+  .action-list {
+    // 第 3 个开始到最后
+    .ant-space-item:nth-child(n + 3) {
+      opacity: 0;
+      transition: opacity 0.26s;
+    }
+  }
+
+  .action-hover {
+    opacity: 0;
+    transition: opacity 0.26s;
+  }
+
+  &:hover {
+    .action-list {
+      .ant-space-item:nth-child(n + 3) {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.comment-item-reply {
+  padding-left: 44px;
+  border-top: none;
+  padding-top: 0;
+}

@@ -17,6 +17,7 @@
     "scss": "0.2.4"
   },
   "devDependencies": {
+    "mockjs": "^1.1.0",
     "node-sass": "4.x",
     "typescript": "3.8.3"
   },

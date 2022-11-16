@@ -59,7 +59,8 @@ export default function MyEditor(props) {
       "justifyJustify", // 两端对齐
       "group-more-style", // 默认模式下的更多...菜单，包括删除线、行内代码、清除格式等
       "group-video", // 默认模式下的插入视频菜单
-      "group-indent" // 默认模式下的调整缩进菜单
+      "group-indent", // 默认模式下的调整缩进菜单
+      "fullScreen" // 全屏功能
     ],
     // 插入的配置项，index 表示从第几项开始插入（基于 toolbar.config.toolbarKeys）；
     // toolbar.config.toolbarKeys 会根据 mode 的值发生改变；default 是 32 项，simple 是 30 项；
