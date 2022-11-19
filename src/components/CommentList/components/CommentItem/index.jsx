@@ -60,7 +60,7 @@ const CommentItem = (props) => {
           ) : (
             <div dangerouslySetInnerHTML={{ __html: content }} />
           )}
-          {emojis && <EmojiTag selected={emojis} />}
+          {emojis ? <EmojiTag selected={emojis} /> : null}
         </Space>
       }
       actions={[
