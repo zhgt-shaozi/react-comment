@@ -5,11 +5,12 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
+    "@ant-design/compatible": "^5.0.0",
     "@ant-design/icons": "^4.7.0",
     "@wangeditor/editor": "5.1.22",
     "@wangeditor/editor-for-react": "1.0.6",
     "@wangeditor/plugin-mention": "^1.0.0",
-    "antd": "4.24.1",
+    "antd": "^5.0.0",
     "lodash": "4.17.21",
     "react": "16.12.0",
     "react-dom": "16.12.0",

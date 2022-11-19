@@ -1,0 +1,34 @@
+p {
+  word-break: break-all;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+img {
+  border-radius: 4px;
+}
+
+// wangEditor 编辑器样式
+.w-e-text-container [data-slate-editor] {
+  word-break: break-all;
+}
+
+// mention-link
+span[contenteditable="false"] {
+  background-color: transparent !important;
+  //   padding: 0 4px !important;
+  //   margin: 0 !important;
+  //   border: none !important;
+  //   border-radius: 0 !important;
+  color: #1677ff;
+}
+
+span[data-w-e-type="mention"] {
+  color: #1677ff;
+  padding: 0 4px;
+  cursor: pointer;
+}

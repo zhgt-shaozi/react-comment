@@ -6,8 +6,25 @@
     border-top: none;
   }
 
+  // comment 头像、内容、操作项
   .ant-comment-inner {
     padding: 8px;
+
+    .ant-comment-content-author {
+      margin-bottom: 8px;
+    }
+  }
+
+  // comment children 项
+  .ant-comment-nested {
+    padding: 8px 0 8px 8px;
+  }
+
+  .comment-delete {
+    padding: 3px 4px;
+    background-color: #f4f5f5;
+    border-radius: 6px;
+    color: #8a8f8d;
   }
 
   .action-list {
@@ -16,11 +33,6 @@
       opacity: 0;
       transition: opacity 0.26s;
     }
-  }
-
-  .action-hover {
-    opacity: 0;
-    transition: opacity 0.26s;
   }
 
   &:hover {

@@ -3,8 +3,9 @@ import { Button, Space } from "antd";
 import { DomEditor, Boot } from "@wangeditor/editor";
 import mentionModule from "@wangeditor/plugin-mention";
 import { Editor, Toolbar } from "@wangeditor/editor-for-react";
-import "@wangeditor/editor/dist/css/style.css";
 import MentionModal from "./MentionModal"; // 提及弹窗组件
+
+import "@wangeditor/editor/dist/css/style.css"; // wangEditor 样式
 import "./styles.scss";
 
 // 重点 注册插件、拓展菜单。要在创建编辑器之前注册，且只能注册一次，不可重复注册。
@@ -78,7 +79,8 @@ export default function MyEditor(props) {
   const editorConfig = {
     placeholder: "请输入内容",
     readOnly: false, // 是否只读
-    autoFocus: false, // 是否自动对焦
+    // scroll: false, // 编辑器是否支持滚动，此时可以给编辑器一个 min-height 即可
+    // autoFocus: false, // 是否自动对焦
     // maxLength: 200, // 编辑内容的最大长度
     // 自定义菜单，可通过 editor.getMenuConfig('菜单名称') 来获取默认的菜单内容
     MENU_CONF: {
@@ -146,7 +148,7 @@ export default function MyEditor(props) {
   };
 
   return (
-    <Space direction="vertical" size={12} style={{ wdith: "100%" }}>
+    <Space direction="vertical" size={12} style={{ width: "100%" }}>
       <div className="editor-box">
         {/* 工具栏 */}
         <Toolbar
@@ -161,12 +163,13 @@ export default function MyEditor(props) {
           value={value}
           onCreated={setEditor} // 创建编辑器
           onChange={handleChange}
-          mode="default"
+          mode="simple" // 简洁模式下会隐藏 hoverbar
           className="editor"
           style={editorStyle}
         />
         {/* 提及组件 */}
         <MentionModal
+          editor={editor}
           visible={mentionModalVisible}
           onCancel={() => setMentionModalVisible(false)}
           insertMention={insertMention}

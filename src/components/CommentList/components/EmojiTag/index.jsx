@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Space } from "antd";
-import "./styles.scss";
 import { EmojiGather } from "../../constants";
+import "./styles.scss";
 
 export default function EmojiSelected(props) {
   const { selected } = props;

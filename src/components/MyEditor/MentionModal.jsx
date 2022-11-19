@@ -30,15 +30,38 @@ const fetch = (params) => {
   });
 };
 
+// 重点 对光标位置进行计算
+const getPositionFixed = (position = {}) => {
+  for (const key in position) {
+    if (Object.hasOwnProperty.call(position, key)) {
+      position[key] = Math.round(+position[key].split("px")[0]); // 取整，四舍五入
+
+      switch (key) {
+        case "top":
+          position[key] += 20;
+          break;
+
+        case "right":
+          position[key] -= 262;
+          break;
+
+        default:
+          break;
+      }
+    }
+  }
+  console.log("position: ", position);
+  return position;
+};
+
 export default function MentionModal(props) {
-  const { visible, onCancel, insertMention } = props;
+  const { visible, onCancel, insertMention, editor } = props;
 
   const mentionRefs = useRef(null);
   const inputRefs = useRef(null);
   const userListRefs = useRef(null);
 
-  const [top, setTop] = useState(0);
-  const [left, setLeft] = useState(0);
+  const [position, setPosition] = useState({});
   const [dom, setDom] = useState(null); // 每次悬浮 li，就将该元素存进来
   const [userInfo, setUserInfo] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -49,25 +72,31 @@ export default function MentionModal(props) {
       return;
     }
 
-    // 重点 获取光标位置
-    const modalDom = mentionRefs.current;
+    const modalDOM = mentionRefs.current;
 
-    const domSelection = document.getSelection(); // 表示用户的光标开始位置到结束位置的选区
-    const domRange = domSelection.getRangeAt(0); // 返回一个包含当前选区内容的区域对象
-    if (domRange === null) return;
+    // 重点 获取 相对于 body 的光标位置
+    // const domSelection = document.getSelection(); // 表示用户的光标开始位置到结束位置的选区
+    // const domRange = domSelection.getRangeAt(0); // 返回一个包含当前选区内容的区域对象
+    // if (domRange === null) return;
 
-    const selectionRect = domRange.getBoundingClientRect(); // 返回一个 DOMRect 对象，其提供了元素的大小及其相对于视口的位置
-    console.log("selectionRect: ", selectionRect);
+    // const selectionRect = domRange.getBoundingClientRect(); // 返回一个 DOMRect 对象，其提供了元素的大小及其相对于视口的位置
+    // console.log("selectionRect: ", selectionRect);
+
+    // setTop(selectionRect.top + 20);
+    // setLeft(selectionRect.left + 5);
+
+    // 重点 获取 相对于编辑器 的光标的定位
+    const pos = getPositionFixed(editor.getSelectionPosition() || {});
 
     // 定位 modal 的位置
-    setTop(selectionRect.top + 20);
-    setLeft(selectionRect.left + 5);
+    setPosition({ ...pos });
 
     // 重点 让 modal 的 opacity = 1，解决位置闪烁的问题
-    modalDom.style.opacity = 1;
+    modalDOM.style.opacity = 1;
 
     // 让 input 聚焦
     inputRefs && inputRefs.current.focus();
+    // console.log("inputRefs: ", inputRefs.current.input); // 获取 antd Input 组件的 DOM
 
     // 调用请求
     fetchUserInfo();
@@ -139,7 +168,7 @@ export default function MentionModal(props) {
   }, 600);
 
   return visible ? (
-    <div ref={mentionRefs} id="mention-modal" className="mention-modal" style={{ top, left }}>
+    <div ref={mentionRefs} id="mention-modal" className="mention-modal" style={{ ...position }}>
       <div className="search">
         <Input
           ref={inputRefs}

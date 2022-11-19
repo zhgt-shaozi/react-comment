@@ -1,30 +1,47 @@
-import React, { useState } from "react";
-import { Space, Comment, Avatar, Popconfirm } from "antd";
+import React, { useState, useEffect } from "react";
+import { Space, Avatar, Popconfirm } from "antd";
+import { Comment } from "@ant-design/compatible"; // antd v4 -> antd v5 的兼容包（v5 中移除了 Comment 组件）
+import { CaretRightOutlined } from "@ant-design/icons";
 import IconFont from "../../../IconFont";
 import MyEditor from "../../../MyEditor";
 import EmojiPopover from "../EmojiPopover";
-import EmojiSelected from "../EmojiSelected";
+import EmojiTag from "../EmojiTag";
 import "./styles.scss";
 
 const CommentItem = (props) => {
   const {
     id,
-    author, // 作者
-    content, // 内容
-    datetime, // 日期
-    showEditor = false, // 点击编辑时是否展示 editor
-    emojis, // 表情列表
-    onItemEdit, // 编辑 / 编辑器的提交 / 取消
-    onItemDelete, // 删除
-    onItemCheckEmoji, // 添加表情
-    isReply // 是否为回复列
+    author,
+    content,
+    datetime,
+    showEditor = false,
+    showReplyEditor = false,
+    emojis,
+    parentId,
+    commenter,
+    isDelete = false,
+
+    onItemEdit, // 编辑 / 编辑器的提交 / 取消 操作
+    onItemDelete, // 删除操作
+    onItemCheckEmoji, // 添加表情操作
+    onItemReply // 回复 编辑器的回复 / 取消操作
   } = props;
 
-  return (
+  return !isDelete ? (
     <Comment
       data-id={id}
-      className={`comment-item${isReply ? " comment-item-reply" : ""}`}
-      author={author}
+      className={`comment-item${parentId ? " comment-item-reply" : ""}`}
+      author={
+        <Space>
+          {author}
+          {commenter && (
+            <>
+              <CaretRightOutlined />
+              {commenter}
+            </>
+          )}
+        </Space>
+      }
       datetime={datetime}
       avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
       content={
@@ -34,7 +51,7 @@ const CommentItem = (props) => {
               <MyEditor
                 onReplyText="提交"
                 defaultValue={content}
-                editorStyle={{ minHeight: 80 }}
+                editorStyle={{ minHeight: 100 }}
                 unAsync
                 onCancel={() => onItemEdit && onItemEdit(id, { showEditor: false })}
                 onReply={({ value }) => onItemEdit && onItemEdit(id, { value, showEditor: false })}
@@ -43,13 +60,16 @@ const CommentItem = (props) => {
           ) : (
             <div dangerouslySetInnerHTML={{ __html: content }} />
           )}
-          {emojis && <EmojiSelected selected={emojis} />}
+          {emojis && <EmojiTag selected={emojis} />}
         </Space>
       }
       actions={[
         <Space key={`comment-list-reply-to-${id}`} className="action-list" size={10}>
           {/* 回复 */}
-          <IconFont type="icon-dino-A3" />
+          <IconFont
+            type="icon-dino-A3"
+            onClick={() => onItemReply && onItemReply(id, { showReplyEditor: true })}
+          />
           {/* 添加表情 */}
           <EmojiPopover
             selected={emojis}
@@ -69,8 +89,24 @@ const CommentItem = (props) => {
         </Space>
       ]}
     >
-      {/* 回复 */}
+      {showReplyEditor && (
+        <MyEditor
+          editorStyle={{ minHeight: 100 }}
+          unAsync
+          onCancel={() => onItemReply && onItemReply(id, { showReplyEditor: false })}
+          onReply={({ value }) => onItemReply && onItemReply(id, { value })}
+        />
+      )}
     </Comment>
+  ) : (
+    <Comment
+      data-id={id}
+      className="comment-item"
+      author={author}
+      datetime={datetime}
+      avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
+      content={<div className="comment-delete">该评论已删除</div>}
+    />
   );
 };
 

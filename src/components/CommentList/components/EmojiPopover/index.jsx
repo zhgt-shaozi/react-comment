@@ -55,7 +55,7 @@ export default function EmojiPopover(props) {
           ))}
         </Space>
       }
-      overlayClassName="emoji-popover" // 卡片类名
+      // overlayClassName="emoji-popover" // 卡片类名
       open={open}
       onOpenChange={handleOpenChange}
     >
